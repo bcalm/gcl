@@ -3,6 +3,7 @@ const path = require('path');
 const process = require('process');
 const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
+const open = require('open');
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 
@@ -50,14 +51,20 @@ async function authorize() {
 async function listEvents(auth) {
   const calendar = google.calendar({version: 'v3', auth});
   const res = await calendar.events.list({
-    calendarId: 'primary',
+    calendarId: 'primary', 
     timeMin: new Date().toISOString(),
-    maxResults: 10,
     singleEvents: true,
     orderBy: 'startTime',
+    timeMax: new Date(new Date().setHours(23, 59, 59, 999)).toISOString()
   });
   const events = res.data.items;
-  events.forEach(console.log)
+  events.forEach(event => {
+    if (event.attendees) { 
+      if (event.attendees.filter(e => e.self)[0].responseStatus === 'accepted') {
+        console.log(event.htmlLink, event.summary); 
+      } 
+    } 
+  })
 }
 
 authorize().then(listEvents).catch(console.error);
