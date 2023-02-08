@@ -55,7 +55,7 @@ const getMeetings = async (auth) => {
     const calendar = google.calendar({version: 'v3', auth});
     const res = await calendar.events.list({
         calendarId: 'primary',
-        timeMin: new Date(new Date().setHours(00, 59, 59, 999)).toISOString(),
+        timeMin: new Date().toISOString(),
         singleEvents: true,
         orderBy: 'startTime',
         timeMax: new Date(new Date().setHours(23, 59, 59, 999)).toISOString()
